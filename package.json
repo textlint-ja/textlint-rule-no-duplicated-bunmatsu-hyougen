@@ -1,0 +1,50 @@
+{
+  "directories": {
+    "test": "test"
+  },
+  "author": "azu",
+  "license": "MIT",
+  "files": [
+    "bin/",
+    "lib/",
+    "src/"
+  ],
+  "name": "textlint-rule-no-duplicated-bunmatsu-hyougen",
+  "version": "1.0.0",
+  "description": "同じ文末表現が連続しているのを見つけるtextlintルール",
+  "main": "lib/textlint-rule-no-duplicated-bunmatsu-hyougen.js",
+  "scripts": {
+    "test": "mocha test/",
+    "build": "NODE_ENV=production babel src --out-dir lib --source-maps",
+    "watch": "babel src --out-dir lib --watch --source-maps",
+    "prepublish": "npm run --if-present build"
+  },
+  "keywords": [
+    "textlint"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/textlint-ja/textlint-rule-no-duplicated-bunmatsu-hyougen.git"
+  },
+  "bugs": {
+    "url": "https://github.com/textlint-ja/textlint-rule-no-duplicated-bunmatsu-hyougen/issues"
+  },
+  "homepage": "https://github.com/textlint-ja/textlint-rule-no-duplicated-bunmatsu-hyougen",
+  "devDependencies": {
+    "babel-cli": "^6.14.0",
+    "babel-preset-es2015": "^6.14.0",
+    "babel-preset-jsdoc-to-assert": "^4.0.0",
+    "babel-preset-power-assert": "^1.0.0",
+    "babel-register": "^6.14.0",
+    "mocha": "^3.0.2",
+    "power-assert": "^1.4.1",
+    "textlint-tester": "^2.0.0"
+  },
+  "dependencies": {
+    "kuromojin": "^1.3.2",
+    "morpheme-match": "^1.0.1",
+    "sentence-splitter": "^2.0.0",
+    "textlint-util-to-string": "^2.0.1",
+    "unist-util-filter": "^0.2.1"
+  }
+}
