@@ -9,6 +9,9 @@ const splitSentence = require("sentence-splitter").split;
 const SentenceSyntax = require("sentence-splitter").Syntax;
 /**
  * 文末表現となるtokenを取り出す
+ * 文末表現
+ *
+ * 助詞+(名詞|動詞)+助動詞+記号
  * @param {Object[]} tokens
  */
 const selectsBunmatsuHyougen = (tokens) => {
@@ -53,6 +56,10 @@ module.exports = function(context) {
                     return bunmatsuTokens.map(token => token.surface_form).join("");
                 });
                 bunmatsuTexts.forEach((bunmatsuText, index) => {
+                    // 短すぎるものは排除 .
+                    if (bunmatsuText.length <= 1) {
+                        return;
+                    }
                     // find same text in forward texts
                     const matchIndex = bunmatsuTexts.indexOf(bunmatsuText, index + 1);
                     if (matchIndex === -1) {
@@ -63,9 +70,14 @@ module.exports = function(context) {
                     if (differenceIndex === 1) {
                         const matchSentence = sentences[matchIndex];
                         const originalIndex = stringSource.originalIndexFromIndex(matchSentence.range[1]);
-                        report(node, new RuleError(`文末表現 "${bunmatsuText}" が連続しています。`, {
-                            index: originalIndex - 1
-                        }))
+                        if(originalIndex) {
+                            report(node, new RuleError(`文末表現 "${bunmatsuText}" が連続しています。`, {
+                                index: originalIndex - 1
+                            }));
+                        }else{
+                            report(node, new RuleError(`文末表現 "${bunmatsuText}" が連続しています。`));
+
+                        }
                     }
                 });
             });
