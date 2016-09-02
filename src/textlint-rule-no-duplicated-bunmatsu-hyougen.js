@@ -2,14 +2,13 @@
 "use strict";
 const filter = require('unist-util-filter');
 const kuromoji = require("kuromojin");
-
 const StringSource = require("textlint-util-to-string");
 const match = require("morpheme-match");
 const splitSentence = require("sentence-splitter").split;
 const SentenceSyntax = require("sentence-splitter").Syntax;
+const debug = require("debug")("textlint-rule-no-duplicated-bunmatsu-hyougen");
 /**
  * 文末表現となるtokenを取り出す
- * 文末表現
  *
  * 助詞+(名詞|動詞)+助動詞+記号
  * @param {Object[]} tokens
@@ -18,21 +17,50 @@ const selectsBunmatsuHyougen = (tokens) => {
     // 名詞 または 動詞が見つかるまで
     const bunmatsuTokens = [];
     const reverseTokens = tokens.reverse();
-    reverseTokens.some(token => {
+    let currentIndex = 0;
+    reverseTokens.some((token, index) => {
+        currentIndex = index;
         bunmatsuTokens.unshift(token);
-        return token.pos === "名詞" || token.pos === "動詞";
+        return token.pos === "動詞" || token.pos === "名詞";
     });
-    // next token
+    // 名詞を見つける
+    reverseTokens.slice(currentIndex + 1).some(token => {
+        currentIndex++;
+        if (token.pos !== "名詞") {
+            return true;
+        }
+        // 名詞を追加する
+        bunmatsuTokens.unshift(token);
+        return false;
+    });
+    // 助詞
     const nextToken = reverseTokens[bunmatsuTokens.length];
     if (nextToken && nextToken.pos === "助詞") {
         bunmatsuTokens.unshift(nextToken);
     }
     return bunmatsuTokens;
 };
-module.exports = function(context) {
-    const {Syntax, RuleError, report, shouldIgnore, getSource} = context;
-    // split sentences
-    // match sentence
+/**
+ * @param {string[]} only
+ * @param {string} text
+ * @return {boolean}
+ */
+const matchOnly = (only, text) => {
+    return only.some(onlyText => text === onlyText);
+};
+// デフォルトオプション
+const defaultOptions = {
+    /**
+     * @type {string[]} チェック対象となる文末表現の配列
+     * @example
+     *  ["ためです。"]
+     **/
+    only: []
+};
+module.exports = function(context, options = {}) {
+    const {Syntax, RuleError, report} = context;
+    const only = options.only ? options.only : defaultOptions.only;
+    const enabledOnlyOption = options.only !== undefined;
     return {
         [Syntax.Paragraph](node){
             const newNode = filter(node, {cascade: false}, (node) => {
@@ -56,6 +84,7 @@ module.exports = function(context) {
                     return bunmatsuTokens.map(token => token.surface_form).join("");
                 });
                 bunmatsuTexts.forEach((bunmatsuText, index) => {
+                    debug("bunmatsuText", bunmatsuText);
                     // 短すぎるものは排除 .
                     if (bunmatsuText.length <= 1) {
                         return;
@@ -65,19 +94,26 @@ module.exports = function(context) {
                     if (matchIndex === -1) {
                         return;
                     }
-                    // 距離
+                    // 距離 が 1
                     const differenceIndex = matchIndex - index;
-                    if (differenceIndex === 1) {
-                        const matchSentence = sentences[matchIndex];
-                        const originalIndex = stringSource.originalIndexFromIndex(matchSentence.range[1]);
-                        if(originalIndex) {
-                            report(node, new RuleError(`文末表現 "${bunmatsuText}" が連続しています。`, {
-                                index: originalIndex - 1
-                            }));
-                        }else{
-                            report(node, new RuleError(`文末表現 "${bunmatsuText}" が連続しています。`));
-
+                    if (differenceIndex > 1) {
+                        return;
+                    }
+                    // only オプションが指定されている場合は、その指定に一致しているものだけチェックする
+                    if (enabledOnlyOption) {
+                        if (!matchOnly(only, bunmatsuText)) {
+                            return;
                         }
+                    }
+                    const matchSentence = sentences[matchIndex];
+                    const originalIndex = stringSource.originalIndexFromIndex(matchSentence.range[1]);
+                    if (originalIndex) {
+                        report(node, new RuleError(`文末表現 "${bunmatsuText}" が連続しています。`, {
+                            index: originalIndex - 1
+                        }));
+                    } else {
+                        report(node, new RuleError(`文末表現 "${bunmatsuText}" が連続しています。`));
+
                     }
                 });
             });
