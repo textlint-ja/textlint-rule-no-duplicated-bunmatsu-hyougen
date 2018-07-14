@@ -33,11 +33,16 @@ const selectsBunmatsuHyougen = (tokens) => {
         bunmatsuTokens.unshift(token);
         return false;
     });
-    // 助詞
-    const nextToken = reverseTokens[bunmatsuTokens.length];
-    if (nextToken && nextToken.pos === "助詞") {
-        bunmatsuTokens.unshift(nextToken);
-    }
+    // 助詞 or 動詞を見つける
+    reverseTokens.slice(currentIndex).some(token => {
+        currentIndex++;
+        if (token.pos !== "動詞" && token.pos !== "助詞") {
+            return true;
+        }
+        // 名詞を追加する
+        bunmatsuTokens.unshift(token);
+        return false;
+    });
     return bunmatsuTokens;
 };
 /**
