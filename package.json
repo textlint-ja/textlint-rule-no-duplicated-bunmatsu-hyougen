@@ -10,7 +10,7 @@
     "src/"
   ],
   "name": "textlint-rule-no-duplicated-bunmatsu-hyougen",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "description": "同じ文末表現が連続しているのを見つけるtextlintルール",
   "main": "lib/textlint-rule-no-duplicated-bunmatsu-hyougen.js",
   "scripts": {
