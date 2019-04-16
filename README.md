@@ -1,5 +1,7 @@
 # textlint-rule-no-duplicated-bunmatsu-hyougen
 
+**Status**: かなり実験的なtextlintルールです。誤検知の可能性を大いに含んでいます。
+
 同じ文末表現が連続しているのを見つける[textlint](https://textlint.github.io/ "textlint")ルール
 
 一つのパラグラフ内で、同じ文末表現が連続していると読みにくく感じるのを見つけるルールです。
