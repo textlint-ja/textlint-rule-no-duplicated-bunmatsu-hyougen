@@ -56,14 +56,15 @@ textlint --rule no-duplicated-bunmatsu-hyougen README.md
 
 - `only`: `string[]`
     - デフォルトなし : 設定することを推奨
+    - [regexp-string-matcher](https://github.com/textlint/regexp-string-matcher)を使った正規表現ライクな文字列指定も可能
 
 ```js
 {
     "rules": {
         "no-duplicated-bunmatsu-hyougen": {
-            // "ためです。"という文末表現の連続しているのをチェックする
+            // "があります。" と "~ためです。"という文末表現の連続しているのをチェックする
             // 他の文末表現の連続は無視される
-            only: ["ためです。"]
+            only: ["があります。", "/.*ためです。/"]
         }
     }
 }

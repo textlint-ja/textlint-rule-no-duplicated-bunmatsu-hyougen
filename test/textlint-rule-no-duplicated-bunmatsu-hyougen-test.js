@@ -18,17 +18,17 @@ tester.run("textlint-rule-no-duplicated-bunmatsu-hyougen", rule, {
     invalid: [
         {
             text: `
-理由として、先ほど紹介したようにNaNは何と演算しても結果がNaNとなってしまうためです。
-これにより、計算していた値がどこでNaNとなったのかが分かりにくく、デバッグが難しくなるためです。
+理由として、先ほど紹介したようにNaNは何と演算しても結果がNaNになるためです。
+これにより、計算していた値がどこでNaNになるためです。
 `,
             options: {
-                only: ["ためです。"]
+                only: ["/.*ためです。/"]
             },
             errors: [
                 {
-                    message: `文末表現 "ためです。" が連続しています。`,
+                    message: `文末表現 "になるためです。" が連続しています。`,
                     line: 3,
-                    column: 49
+                    column: 28
                 }
             ]
         },

@@ -3,10 +3,10 @@
 const filter = require('unist-util-filter');
 const kuromoji = require("kuromojin");
 const StringSource = require("textlint-util-to-string");
-const match = require("morpheme-match");
 const splitSentence = require("sentence-splitter").split;
 const SentenceSyntax = require("sentence-splitter").Syntax;
 const debug = require("debug")("textlint-rule-no-duplicated-bunmatsu-hyougen");
+import { matchPatterns } from "@textlint/regexp-string-matcher";
 /**
  * 文末表現となるtokenを取り出す
  *
@@ -51,14 +51,14 @@ const selectsBunmatsuHyougen = (tokens) => {
  * @return {boolean}
  */
 const matchOnly = (only, text) => {
-    return only.some(onlyText => text === onlyText);
+    return matchPatterns(text, only);
 };
 // デフォルトオプション
 const defaultOptions = {
     /**
      * @type {string[]} チェック対象となる文末表現の配列
      * @example
-     *  ["ためです。"]
+     * ["があります。", "/.*ためです。/"]
      **/
     only: []
 };
@@ -79,7 +79,7 @@ module.exports = function(context, options = {}) {
                 return sentence.type === SentenceSyntax.Sentence;
             });
             const task = sentences.map(sentence => {
-                const sentenceText = sentence.value;
+                const sentenceText = sentence.raw;
                 return kuromoji(sentenceText).then(tokens => {
                     return selectsBunmatsuHyougen(tokens);
                 });
