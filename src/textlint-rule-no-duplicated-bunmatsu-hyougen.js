@@ -1,10 +1,9 @@
 // LICENSE : MIT
 "use strict";
 const filter = require('unist-util-filter');
-const kuromoji = require("kuromojin");
-const StringSource = require("textlint-util-to-string");
-const splitSentence = require("sentence-splitter").split;
-const SentenceSyntax = require("sentence-splitter").Syntax;
+const { tokenize } = require("kuromojin");
+const { StringSource } = require("textlint-util-to-string");
+const { split: splitSentence, SentenceSplitterSyntax: SentenceSyntax } = require("sentence-splitter");
 const debug = require("debug")("textlint-rule-no-duplicated-bunmatsu-hyougen");
 import { matchPatterns } from "@textlint/regexp-string-matcher";
 /**
@@ -16,7 +15,8 @@ import { matchPatterns } from "@textlint/regexp-string-matcher";
 const selectsBunmatsuHyougen = (tokens) => {
     // 名詞 または 動詞が見つかるまで
     const bunmatsuTokens = [];
-    const reverseTokens = tokens.reverse();
+    // kuromojin returns a readonly array, so reverse a copy
+    const reverseTokens = [...tokens].reverse();
     let currentIndex = 0;
     reverseTokens.some((token, index) => {
         currentIndex = index;
@@ -80,7 +80,7 @@ module.exports = function(context, options = {}) {
             });
             const task = sentences.map(sentence => {
                 const sentenceText = sentence.raw;
-                return kuromoji(sentenceText).then(tokens => {
+                return tokenize(sentenceText).then(tokens => {
                     return selectsBunmatsuHyougen(tokens);
                 });
             });

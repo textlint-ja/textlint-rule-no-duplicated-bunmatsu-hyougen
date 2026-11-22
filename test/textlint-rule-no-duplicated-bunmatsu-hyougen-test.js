@@ -1,6 +1,6 @@
 // LICENSE : MIT
 "use strict";
-const TextLintTester = require("textlint-tester");
+const TextLintTester = require("textlint-tester").default;
 const tester = new TextLintTester();
 // rule
 const rule = require("../src/textlint-rule-no-duplicated-bunmatsu-hyougen");
